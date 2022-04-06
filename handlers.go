@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"mime"
 	"net/http"
 	"strconv"
 )
-
 
 func renderJSON(w http.ResponseWriter, v interface{}) {
 	js, err := json.Marshal(v)
@@ -20,16 +18,13 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 }
 
 func (p *postServer) createPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("handling post create at %s\n", r.URL.Path)
 
-	
 	type RequestPost struct {
 		Title   string `json:"title"`
 		Content string `json:"content"`
 	}
 
-
-	// Enforce JSON 
+	// Enforce JSON
 	contentType := r.Header.Get("Content-Type")
 	mediatype, _, err := mime.ParseMediaType(contentType)
 	if err != nil {
@@ -55,10 +50,9 @@ func (p *postServer) createPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *postServer) deletePost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("handling delete post at %s\n", r.URL.Path)
 
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
-	if err != nil || id < 1 {
+	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -66,13 +60,14 @@ func (p *postServer) deletePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
+
+	renderJSON(w, "Post successfully deleted")
 }
 
 func (p *postServer) getPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("handling get post at %s\n", r.URL.Path)
 
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
-	if err != nil || id < 1 {
+	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
